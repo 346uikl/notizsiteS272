@@ -1,37 +1,31 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
-const auth = require("./auth");
-const notes = require("./notes");
-require("./cleanup");
+const path = require("path");
+
+const authRoutes = require("./auth.js");
+const notesRoutes = require("./notes.js");
+require("./cleanup.js");
 
 const app = express();
+
 app.use(cors());
-app.use(express.json());
-app.use(express.static("frontend"));
+app.use(bodyParser.json());
 
-// Registrierung
-app.post("/api/register", (req, res) => {
-    const result = auth.register(req.body.username, req.body.password);
-    res.json(result);
+// Statische Dateien (Frontend) ausliefern
+app.use(express.static(path.join(__dirname, "public")));
+
+// API-Routen
+app.use("/auth", authRoutes);
+app.use("/notes", notesRoutes);
+
+// Damit index.html bei / angezeigt wird
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Login
-app.post("/api/login", (req, res) => {
-    const result = auth.login(req.body.username, req.body.password);
-    res.json(result);
-});
-
-// Notiz speichern
-app.post("/api/save", (req, res) => {
-    notes.saveNote(req.body.username, req.body.text);
-    res.json({ ok: true });
-});
-
-// Notizen abrufen
-app.get("/api/notes", (req, res) => {
-    const n = notes.getNotes(req.query.username);
-    res.json(n);
-});
-
+// Render Port
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server läuft auf Port " + PORT));
+app.listen(PORT, () => {
+    console.log(`Server läuft auf Port ${PORT}`);
+});
