@@ -1,14 +1,15 @@
 {
   "name": "notizsiteS27",
   "version": "1.0.0",
-  "main": "backend/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "bcrypt": "^5.1.0"
+    "bcrypt": "^5.1.0",
+    "cron": "^3.1.0"
   }
 }
