@@ -1,6 +1,5 @@
 const express = require("express");
 const fs = require("fs");
-
 const router = express.Router();
 
 const NOTES_FILE = "notes.json";
@@ -17,12 +16,14 @@ function saveNotes(notes) {
     fs.writeFileSync(NOTES_FILE, JSON.stringify(notes, null, 2));
 }
 
+// Neue Notiz speichern
 router.post("/add", (req, res) => {
     const { username, content } = req.body;
 
     let notes = loadNotes();
 
     notes.push({
+        id: Date.now() + Math.random(),  // EINDEUTIGE ID
         username,
         content,
         created: Date.now()
@@ -33,12 +34,24 @@ router.post("/add", (req, res) => {
     res.json({ message: "Notiz gespeichert" });
 });
 
+// Notizen eines Users laden
 router.post("/list", (req, res) => {
     const { username } = req.body;
-
     const notes = loadNotes().filter(n => n.username === username);
-
     res.json(notes);
+});
+
+// Notiz löschen
+router.post("/delete", (req, res) => {
+    const { id, username } = req.body;
+
+    let notes = loadNotes();
+
+    notes = notes.filter(n => !(n.id === id && n.username === username));
+
+    saveNotes(notes);
+
+    res.json({ message: "Notiz gelöscht" });
 });
 
 module.exports = router;
