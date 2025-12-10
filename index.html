@@ -1,35 +1,111 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notizen App</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notizen system von serdar</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="app">
+    <aside id="sidebar" class="glass">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Notes</h1>
+      </div>
 
-<div id="authBox" class="card">
-    <h2>Login / Registrierung</h2>
-    <input id="authUser" placeholder="Benutzername">
-    <input id="authPass" type="password" placeholder="Passwort">
-    <button onclick="register()">Registrieren</button>
-    <button onclick="login()">Login</button>
-    <p id="authMsg"></p>
-</div>
+      <div class="section">
+        <input id="searchInput" placeholder="🔍 Suchen oder Tag" oninput="renderFiltered()" />
+      </div>
 
-<div id="notesPage" class="hidden">
-    <div id="topBar">
-        <h2>🗒 Deine Notizen</h2>
-        <button onclick="logout()">Logout</button>
+      <div class="section">
+        <button class="btn" onclick="openEditor()">＋ Neue Notiz</button>
+        <button class="btn ghost" onclick="toggleTheme()">🌙 Dark Mode</button>
+      </div>
+
+      <div class="section">
+        <button class="btn" onclick="showChangePassword()">🔑 Passwort ändern</button>
+        <button class="btn danger" onclick="openDeleteAccount()">❌ Account löschen</button>
+        <button class="btn muted" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="footer">
+        <small>by serdarmfg</small>
+      </div>
+    </aside>
+
+    <main id="main">
+      <header class="glass topbar">
+        <div class="welcome">Willkommen, <span id="userDisplay">—</span></div>
+      </header>
+
+      <section id="notesGrid" class="grid"></section>
+
+      <button id="fab" title="Neue Notiz" onclick="openEditor()">＋</button>
+    </main>
+  </div>
+
+  <!-- Editor Modal -->
+  <div id="editorModal" class="modal hidden">
+    <div class="modal-card glass">
+      <input id="noteTitle" placeholder="Titel (optional)" />
+      <textarea id="noteEditor" placeholder="Schreibe deine Notiz..."></textarea>
+
+      <div class="editor-row">
+        <input id="tagInput" placeholder="Tags, z.B. work,idea" />
+        <input id="colorInput" type="color" value="#e6f0ff" />
+        <label class="pin"><input id="pinInput" type="checkbox" /> Pinnen</label>
+      </div>
+
+      <div class="editor-actions">
+        <button onclick="saveFromEditor()">Speichern</button>
+        <button class="muted" onclick="closeEditor()">Abbrechen</button>
+      </div>
     </div>
+  </div>
 
-    <textarea id="noteContent"></textarea>
-    <button onclick="saveNote()">Speichern</button>
-    <p id="saveMsg"></p>
+  <!-- Login/Register Modal -->
+  <div id="authModal" class="modal hidden">
+    <div class="modal-card glass auth-card">
+      <h2>Login / Registrierung</h2>
+      <input id="authUser" placeholder="Benutzername" />
+      <input id="authPass" type="password" placeholder="Passwort" />
+      <div class="editor-actions">
+        <button onclick="register()">Registrieren</button>
+        <button onclick="login()">Login</button>
+      </div>
+      <p id="authMsg" class="muted"></p>
+    </div>
+  </div>
 
-    <div id="notesList"></div>
-</div>
+  <!-- Change Password Modal -->
+  <div id="pwdModal" class="modal hidden">
+    <div class="modal-card glass">
+      <h3>Passwort ändern</h3>
+      <input id="oldPwd" type="password" placeholder="Altes Passwort" />
+      <input id="newPwd" type="password" placeholder="Neues Passwort" />
+      <div class="editor-actions">
+        <button onclick="changePassword()">Ändern</button>
+        <button class="muted" onclick="hideChangePassword()">Schließen</button>
+      </div>
+      <p id="pwdMsg" class="muted"></p>
+    </div>
+  </div>
 
-<script src="app.js"></script>
+  <!-- Delete Account Modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-card glass">
+      <h3>Account löschen</h3>
+      <p>Achtung! Dein Account und alle Notizen werden dauerhaft gelöscht.</p>
+      <input id="deletePwd" type="password" placeholder="Passwort zur Bestätigung" />
+      <div class="editor-actions">
+        <button class="danger" onclick="deleteAccount()">Löschen</button>
+        <button class="muted" onclick="closeDeleteAccount()">Abbrechen</button>
+      </div>
+      <p id="deleteMsg" class="muted"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
