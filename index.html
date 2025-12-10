@@ -3,64 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notizen Mega App</title>
+<title>Notizen App</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="app">
+<div id="authBox" class="card">
+    <h2>Login / Registrierung</h2>
+    <input id="authUser" placeholder="Benutzername">
+    <input id="authPass" type="password" placeholder="Passwort">
+    <button onclick="register()">Registrieren</button>
+    <button onclick="login()">Login</button>
+    <p id="authMsg"></p>
+</div>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <h2>📒 Notizen</h2>
-        <button onclick="switchView('notesView')">🗒 Notizen</button>
-        <button onclick="switchView('newView')">➕ Neue Notiz</button>
-        <button onclick="switchTheme()">🌗 Theme</button>
-        <button onclick="logout()">🚪 Logout</button>
+<div id="notesPage" class="hidden">
+    <div id="topBar">
+        <h2>🗒 Deine Notizen</h2>
+        <button onclick="logout()">Logout</button>
     </div>
 
-    <!-- Main Content -->
-    <div id="main">
+    <textarea id="noteContent"></textarea>
+    <button onclick="saveNote()">Speichern</button>
+    <p id="saveMsg"></p>
 
-        <!-- Login/Register -->
-        <div id="authBox" class="glass">
-            <h2>Login / Registrierung</h2>
-            <input id="authUser" placeholder="Benutzername">
-            <input id="authPass" type="password" placeholder="Passwort">
-            <button onclick="register()">Registrieren</button>
-            <button onclick="login()">Login</button>
-            <p id="authMsg"></p>
-        </div>
-
-        <!-- Notizen Liste -->
-        <div id="notesView" class="hidden glass">
-            <h2>Deine Notizen</h2>
-            <input id="searchBar" placeholder="🔍 Suchen..." oninput="searchNotes()">
-            <div id="notesList"></div>
-        </div>
-
-        <!-- Neue Notiz -->
-        <div id="newView" class="hidden glass">
-            <h2>Neue Notiz</h2>
-            <div id="editor" contenteditable="true" class="editor"></div>
-
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <button onclick="format('bold')"><b>B</b></button>
-                <button onclick="format('italic')"><i>I</i></button>
-                <button onclick="format('underline')"><u>U</u></button>
-                <button onclick="format('insertUnorderedList')">• Liste</button>
-                <button onclick="formatColor('yellow')">🟨</button>
-                <button onclick="formatColor('lightgreen')">🟩</button>
-                <button onclick="formatColor('lightblue')">🟦</button>
-            </div>
-
-            <button class="saveBtn" onclick="saveNote()">Speichern</button>
-            <p id="saveMsg"></p>
-        </div>
-
-    </div>
-
+    <div id="notesList"></div>
 </div>
 
 <script src="app.js"></script>

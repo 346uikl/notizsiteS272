@@ -16,7 +16,6 @@ function cleanupOldNotes() {
     console.log("Cleanup gestartet:", new Date().toISOString());
 
     const notes = loadNotes();
-
     const twoMonths = 1000 * 60 * 60 * 24 * 60; // 60 Tage
     const now = Date.now();
 
@@ -29,13 +28,7 @@ function cleanupOldNotes() {
     saveNotes(filtered);
 }
 
-// Cron: jeden Tag um 03:00
-const job = new CronJob(
-    "0 3 * * *",
-    cleanupOldNotes,
-    null,
-    true,
-    "Europe/Berlin"
-);
+// Läuft täglich um 03:00
+const job = new CronJob("0 3 * * *", cleanupOldNotes, null, true, "Europe/Berlin");
 
 module.exports = job;
