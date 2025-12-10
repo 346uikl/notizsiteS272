@@ -1,49 +1,54 @@
+const express = require("express");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const router = express.Router();
 
-const USERS_FILE = "./backend/db/users.json";
+const USERS_FILE = "users.json";
 
+// Datei erstellen, falls nicht vorhanden
+if (!fs.existsSync(USERS_FILE)) {
+    fs.writeFileSync(USERS_FILE, JSON.stringify([]));
+}
+
+// Benutzer laden
 function loadUsers() {
-    if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "{}");
     return JSON.parse(fs.readFileSync(USERS_FILE));
 }
 
+// Benutzer speichern
 function saveUsers(users) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
-module.exports = {
-    register(username, password) {
-        const users = loadUsers();
-        if (users[username]) return { ok: false, msg: "Benutzer existiert bereits." };
+// Registrierung
+router.post("/register", (req, res) => {
+    const { username, password } = req.body;
+    const users = loadUsers();
 
-        const hash = bcrypt.hashSync(password, 12);
+    if (users.find(u => u.username === username)) {
+        return res.status(400).json({ message: "Benutzer existiert bereits" });
+    }
 
-        users[username] = {
-            password: hash,
-            lastActive: Date.now()
-        };
+    const hashed = bcrypt.hashSync(password, 10);
 
-        saveUsers(users);
-        return { ok: true };
-    },
+    users.push({ username, password: hashed });
+    saveUsers(users);
 
-    login(username, password) {
-        const users = loadUsers();
-        if (!users[username]) return { ok: false, msg: "User existiert nicht." };
+    res.json({ message: "Registrierung erfolgreich" });
+});
 
-        if (!bcrypt.compareSync(password, users[username].password))
-            return { ok: false, msg: "Falsches Passwort." };
+// Login
+router.post("/login", (req, res) => {
+    const { username, password } = req.body;
+    const users = loadUsers();
 
-        users[username].lastActive = Date.now();
-        saveUsers(users);
+    const user = users.find(u => u.username === username);
 
-        return { ok: true };
-    },
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+        return res.status(400).json({ message: "Falsche Login-Daten" });
+    }
 
-    getUsers() {
-        return loadUsers();
-    },
+    res.json({ message: "Login erfolgreich" });
+});
 
-    saveUsers
-};
+module.exports = router;
