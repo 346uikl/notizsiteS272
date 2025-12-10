@@ -1,26 +1,41 @@
-const cron = require("cron");
-const auth = require("./auth");
+const { CronJob } = require("cron");
 const fs = require("fs");
 
-const NOTES_FILE = "./backend/db/notes.json";
+const NOTES_FILE = "notes.json";
 
-new cron.CronJob("0 3 * * *", () => {
-    console.log("Starte Inaktivitäts-Cleanup...");
+function loadNotes() {
+    if (!fs.existsSync(NOTES_FILE)) return [];
+    return JSON.parse(fs.readFileSync(NOTES_FILE));
+}
 
-    const users = auth.getUsers();
-    const notes = JSON.parse(fs.readFileSync(NOTES_FILE));
+function saveNotes(notes) {
+    fs.writeFileSync(NOTES_FILE, JSON.stringify(notes, null, 2));
+}
 
-    const TWO_MONTHS = 1000 * 60 * 60 * 24 * 60;
+function cleanupOldNotes() {
+    console.log("Cleanup gestartet:", new Date().toISOString());
+
+    const notes = loadNotes();
+
+    const twoMonths = 1000 * 60 * 60 * 24 * 60; // 60 Tage
     const now = Date.now();
 
-    for (let u in users) {
-        if (now - users[u].lastActive > TWO_MONTHS) {
-            console.log("Lösche User + Daten:", u);
-            delete users[u];
-            delete notes[u];
-        }
+    const filtered = notes.filter(n => (now - n.created) < twoMonths);
+
+    if (filtered.length !== notes.length) {
+        console.log("Alte Notizen gelöscht:", notes.length - filtered.length);
     }
 
-    auth.saveUsers(users);
-    fs.writeFileSync(NOTES_FILE, JSON.stringify(notes, null, 2));
-}).start();
+    saveNotes(filtered);
+}
+
+// Cron: jeden Tag um 03:00
+const job = new CronJob(
+    "0 3 * * *",
+    cleanupOldNotes,
+    null,
+    true,
+    "Europe/Berlin"
+);
+
+module.exports = job;
