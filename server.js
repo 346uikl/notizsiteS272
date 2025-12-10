@@ -5,23 +5,23 @@ const path = require("path");
 
 const authRoutes = require("./auth.js");
 const notesRoutes = require("./notes.js");
-require("./cleanup.js"); // Cron aktivieren
+require("./cleanup.js");
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Frontend ausliefern
-app.use(express.static(path.join(__dirname, "public")));
+// Statische Dateien aus dem aktuellen Ordner ausliefern
+app.use(express.static(__dirname));
 
 // API-Routen
 app.use("/auth", authRoutes);
 app.use("/notes", notesRoutes);
 
-// Fallback für SPA / und andere Pfade
+// Fallback: index.html zurückgeben
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Render Port
