@@ -1,4 +1,13 @@
-let currentUser = null;
+let currentUser = localStorage.getItem("user");
+
+// Wenn angemeldet bleiben aktiv → direkt Notes laden
+if (currentUser) {
+    authBox.classList.add("hidden");
+    notesPage.classList.remove("hidden");
+    loadNotes();
+}
+
+// ---------------- LOGIN ----------------
 
 async function register() {
     const username = authUser.value.trim();
@@ -26,21 +35,29 @@ async function login() {
 
     const data = await res.json();
 
+    authMsg.innerText = data.message;
+
     if (data.message === "Login erfolgreich") {
         currentUser = username;
+
+        // ⭐ AUTOMATISCH EINGELOGGT BLEIBEN
+        localStorage.setItem("user", username);
+
         authBox.classList.add("hidden");
         notesPage.classList.remove("hidden");
         loadNotes();
     }
-
-    authMsg.innerText = data.message;
 }
 
 function logout() {
     currentUser = null;
+    localStorage.removeItem("user");
+
     authBox.classList.remove("hidden");
     notesPage.classList.add("hidden");
 }
+
+// ---------------- NOTES ----------------
 
 async function saveNote() {
     const content = noteContent.value.trim();
@@ -56,6 +73,7 @@ async function saveNote() {
     loadNotes();
 }
 
+// Lade Notizen
 async function loadNotes() {
     const res = await fetch("/notes/list", {
         method: "POST",
@@ -64,15 +82,31 @@ async function loadNotes() {
     });
 
     const notes = await res.json();
+
     notesList.innerHTML = "";
 
     notes.forEach(n => {
         const div = document.createElement("div");
-        div.className = "note";
+        div.className = "note fadeIn";
+
         div.innerHTML = `
             <p>${n.content}</p>
             <small>${new Date(n.created).toLocaleString()}</small>
+            <button class="deleteBtn" onclick="deleteNote(${n.id})">Löschen</button>
         `;
+
         notesList.appendChild(div);
     });
+}
+
+
+// Notiz löschen
+async function deleteNote(id) {
+    await fetch("/notes/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, username: currentUser })
+    });
+
+    loadNotes();
 }
